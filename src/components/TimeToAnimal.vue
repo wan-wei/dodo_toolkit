@@ -83,7 +83,7 @@
       </div>
     </div>
     <div class="footer">
-      <p>Wan.W @ https://github.com/nestle1993/dodo_toolkit</p>
+      Copyright @ <a href="https://github.com/nestle1993/dodo_toolkit">Wan.W</a>
     </div>
   </div>
 </template>
@@ -192,7 +192,7 @@ import northernInsects from '../../static/northernInsects.json'
     left: 20px;
     right: 20px;
     top: 80px;
-    bottom: 80px;
+    bottom: 40px;
     /*border: 1px solid;*/
   }
   .panelBlock {
@@ -222,9 +222,9 @@ import northernInsects from '../../static/northernInsects.json'
   .footer {
     font-family: "Comic Sans", "Comic Sans MS", "Chalkboard", "ChalkboardSE-Regular", sans-serif;
     background-color: #FFDEAD;
-    color: #333;
+    color: #fff;
     text-align: center;
-    height:80px;
+    height:40px;
     position: absolute;
     left: 0;
     right: 0;
@@ -243,5 +243,15 @@ import northernInsects from '../../static/northernInsects.json'
     transition: all 0.5s!important;
     border-color:  #fff!important;
     border-radius: 20px !important;
+  }
+  a:link,
+  a:visited {
+    color: dimgrey;
+    text-decoration: underline;
+  }
+  a:hover,
+  a:active {
+    color: black;
+    text-decoration: none;
   }
 </style>
