@@ -2,73 +2,103 @@
   <div class="container">
     <div class="header">どうぶつの森 Toolkit</div>
     <div class="main">
-      <h3>选择月份和时间段，</h3>
-      <h3>了解会遇到哪些鱼类和昆虫吧！</h3>
-      <div class="box">
-        <el-select v-model="hemiValue" placeholder="哪个半球？">
-          <el-option
-            v-for="item in hemiOptions"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value">
-          </el-option>
-        </el-select>
+      <div class="panelBlock">
+        <h3 v-if="showResultFlag === false">选择月份和时间段，了解会遇到哪些鱼类和昆虫吧！</h3>
+        <h3 v-if="showResultFlag === true">{{monthValue}}月份{{startTime}}-{{endTime}}的鱼类和昆虫：</h3>
+        <!--<h3>了解会遇到哪些鱼类和昆虫吧！</h3>-->
       </div>
-      <div calss="box">
-        <el-select v-model="monthValue" placeholder="几月份？">
-          <el-option
-            v-for="item in monthOptions"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value">
-          </el-option>
-        </el-select>
+      <div class="selectBlock" v-if="showResultFlag === false">
+        <div class="box">
+          <el-select v-model="hemiValue" placeholder="哪个半球？">
+            <el-option
+              v-for="item in hemiOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </div>
+        <div calss="box">
+          <el-select v-model="monthValue" placeholder="几月份？">
+            <el-option
+              v-for="item in monthOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </div>
+        <div class="box">
+          <el-time-select
+            placeholder="起始时间"
+            v-model="startTime"
+            :picker-options="{
+              start: '00:00',
+              step: '01:00',
+              end: '23:59'}">
+          </el-time-select>
+        </div>
+        <div calss="box">
+          <el-time-select
+            placeholder="结束时间"
+            v-model="endTime"
+            :picker-options="{
+              start: '00:00',
+              step: '01:00',
+              end: '24:00',
+              minTime: startTime}">
+          </el-time-select>
+        </div>
       </div>
-      <div class="box">
-        <el-time-select
-          placeholder="起始时间"
-          v-model="startTime"
-          :picker-options="{
-            start: '00:00',
-            step: '00:30',
-            end: '23:59'}">
-        </el-time-select>
+      <div class="goButtonBlock">
+        <el-button type="primary" @click="showResult()" v-if="showResultFlag === false">Go!</el-button>
+        <el-button type="primary" @click="goBack()" v-if="showResultFlag === true">Back</el-button>
       </div>
-      <div calss="box">
-        <el-time-select
-          placeholder="结束时间"
-          v-model="endTime"
-          :picker-options="{
-            start: '00:00',
-            step: '00:30',
-            end: '23:59',
-            minTime: startTime}">
-        </el-time-select>
-      </div>
-      <div class="goButton">
-        <el-button type="primary" @click="showResult()">Go!</el-button>
-      </div>
-      <div class="result">
-        <p>lalala</p>
-        <p>lalala</p>
+      <div class="resultBlock" v-if="showResultFlag === true">
+        <el-table
+          :data="resultData"
+          style="width: 100%"
+          :row-style="tableRowStyleFunction"
+          :default-sort = "{prop: 'price', order: 'descending'}">
+          <el-table-column
+            prop="class"
+            label="类别"
+            sortable>
+          </el-table-column>
+          <el-table-column
+            prop="name"
+            label="名字">
+          </el-table-column>
+          <el-table-column
+            prop="location"
+            label="地点"
+            sortable>
+          </el-table-column>
+          <el-table-column
+            prop="price"
+            label="价格"
+            sortable>
+          </el-table-column>
+        </el-table>
       </div>
     </div>
-    <div class="footer">copyright@Wan.W</div>
+    <div class="footer">
+      <p>Wan.W @ https://github.com/nestle1993/dodo_toolkit</p>
+    </div>
   </div>
 </template>
 
 <script>
+import northernFish from '../../static/northernFish.json'
+import northernInsects from '../../static/northernInsects.json'
 /* eslint-disable */
   export default {
     name: "time-to-animal",
-    mounted: function () {
-
-    },
     data() {
       return {
         hemiOptions: [
           {value: '1', label: '北半球'},
-          {value: '2', label: '南半球'}
+          // {value: '2', label: '南半球'}
         ],
         monthOptions: [
           {value: '1', label: '一月'},
@@ -87,7 +117,50 @@
         hemiValue: '',
         monthValue: '',
         startTime: '',
-        endTime: ''
+        endTime: '',
+        resultData: [],
+        showResultFlag: false
+      }
+    },
+    methods: {
+      tableRowStyleFunction({row, rowIndex}) {
+        if (rowIndex % 2 === 1) {
+          return {"background": "rgba(255, 245, 238, 0.5)"}
+        }
+        return {};
+      },
+      selectFunction: function (startTimeVal, endTimeVal, monthVal, infoList, className) {
+        let ret = [];
+        for (let i = 0; i < infoList.length; i++) {
+          const itemInfo = infoList[i];
+          if (itemInfo.month.indexOf(monthVal) > -1) {
+            // console.log("monthVal: " + monthVal + "\n" + fishInfo.month)
+            for (let j in itemInfo.time) {
+              if (itemInfo.time[j] >= startTimeVal && itemInfo.time[j] <= endTimeVal) {
+                // console.log(fishInfo.name + " " + "showTime: " + fishInfo.time[j] + "\n" + fishInfo.time);
+                ret.push({"class": className, "name": itemInfo.name, "location": itemInfo.location, "price": itemInfo.price})
+                break;
+              }
+            }
+          }
+        }
+        return ret;
+      },
+      showResult: function () {
+        this.resultData = [];
+        this.showResultFlag = true;
+
+        const startTimeVal = parseInt(this.startTime.split(":")[0]);
+        const endTimeVal = parseInt(this.endTime.split(":")[0]);
+        const monthVal = parseInt(this.monthValue);
+        // console.log(startTimeVal + " " + endTimeVal);
+        const selectedFish = this.selectFunction(startTimeVal, endTimeVal, monthVal, northernFish, "鱼");
+        const selectedInsects = this.selectFunction(startTimeVal, endTimeVal, monthVal, northernInsects, "昆虫");
+        this.resultData.push.apply(this.resultData, selectedFish);
+        this.resultData.push.apply(this.resultData, selectedInsects);
+      },
+      goBack: function () {
+        this.showResultFlag = false;
       }
     }
   }
@@ -113,31 +186,37 @@
     /*border: 1px solid;*/
   }
   .main {
-    background-color: white;
-    color: #333;
     text-align: center;
     /*These for lines are to fix main in the middle*/
     position: absolute;
     left: 20px;
     right: 20px;
     top: 80px;
-    bottom: 60px;
+    bottom: 80px;
     /*border: 1px solid;*/
+  }
+  .panelBlock {
+    width: 80%;
+    display: inline-block;
+    background: rgba(122, 197, 205, 0.3);
+    color: gray;
+    border-radius: 20px;
   }
   .box {
     margin-top: 15px;
     margin-bottom: 15px;
   }
-  .goButton {
+  .goButtonBlock {
     margin-top: 15px;
   }
-  .result {
-    border: 1px solid;
+  .resultBlock {
+    /*border: 1px solid;*/
+    vertical-align:middle;
     position: absolute;
-    bottom: 0px;
-    left: 20px;
-    right: 20px;
-    top: 370px;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    top: 130px;
     overflow-y: auto;
   }
   .footer {
@@ -145,7 +224,7 @@
     background-color: #FFDEAD;
     color: #333;
     text-align: center;
-    height:60px;
+    height:80px;
     position: absolute;
     left: 0;
     right: 0;
@@ -155,7 +234,7 @@
     display: inline-block !important;
     padding: 12px 20px!important;
     background-color: #FFDEAD!important;
-    color: black!important;
+    color: dimgray!important;
     font-family: "Comic Sans", "Comic Sans MS", "Chalkboard", "ChalkboardSE-Regular", sans-serif !important;
     font-size: 13px!important;
     font-weight: 800!important;
@@ -165,5 +244,4 @@
     border-color:  #fff!important;
     border-radius: 20px !important;
   }
-
 </style>
