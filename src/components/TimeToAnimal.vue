@@ -196,7 +196,7 @@ import northernInsects from '../../static/northernInsects.json'
     /*border: 1px solid;*/
   }
   .panelBlock {
-    width: 80%;
+    width: 90%;
     display: inline-block;
     background: rgba(122, 197, 205, 0.3);
     color: gray;
