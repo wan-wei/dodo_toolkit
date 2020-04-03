@@ -83,7 +83,7 @@
       </div>
     </div>
     <div class="footer">
-      Copyright @ <a href="https://github.com/nestle1993/dodo_toolkit">Wan.W</a>
+      Author @ <a href="https://github.com/nestle1993/dodo_toolkit">Wan.W</a>
     </div>
   </div>
 </template>
