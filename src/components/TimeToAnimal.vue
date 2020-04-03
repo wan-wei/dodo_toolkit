@@ -208,7 +208,7 @@ import southernInsects from '../../static/southernInsects.json'
     /*border: 1px solid;*/
   }
   .panelBlock {
-    width: 90%;
+    width: 100%;
     display: inline-block;
     background: rgba(122, 197, 205, 0.3);
     color: gray;
