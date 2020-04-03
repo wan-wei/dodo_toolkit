@@ -3,8 +3,8 @@
     <div class="header">どうぶつの森 Toolkit</div>
     <div class="main">
       <div class="panelBlock">
-        <h3 v-if="showResultFlag === false">选择月份和时间段，了解会遇到哪些鱼类和昆虫吧！</h3>
-        <h3 v-if="showResultFlag === true">{{monthValue}}月份{{startTime}}-{{endTime}}的鱼类和昆虫：</h3>
+        <h4 v-if="showResultFlag === false">选择月份和时间段，了解会遇到哪些鱼类和昆虫吧！</h4>
+        <h4 v-if="showResultFlag === true">{{hemiMapping[hemiValue]}}{{monthValue}}月份{{startTime}}-{{endTime}}的鱼类和昆虫：</h4>
         <!--<h3>了解会遇到哪些鱼类和昆虫吧！</h3>-->
       </div>
       <div class="selectBlock" v-if="showResultFlag === false">
@@ -91,6 +91,8 @@
 <script>
 import northernFish from '../../static/northernFish.json'
 import northernInsects from '../../static/northernInsects.json'
+import southernFish from '../../static/southernFish.json'
+import southernInsects from '../../static/southernInsects.json'
 /* eslint-disable */
   export default {
     name: "time-to-animal",
@@ -98,8 +100,9 @@ import northernInsects from '../../static/northernInsects.json'
       return {
         hemiOptions: [
           {value: '1', label: '北半球'},
-          // {value: '2', label: '南半球'}
+          {value: '2', label: '南半球'}
         ],
+        hemiMapping: {"1": "北半球", "2": "南半球"},
         monthOptions: [
           {value: '1', label: '一月'},
           {value: '2', label: '二月'},
@@ -138,7 +141,7 @@ import northernInsects from '../../static/northernInsects.json'
             for (let j in itemInfo.time) {
               if (itemInfo.time[j] >= startTimeVal && itemInfo.time[j] <= endTimeVal) {
                 // console.log(fishInfo.name + " " + "showTime: " + fishInfo.time[j] + "\n" + fishInfo.time);
-                ret.push({"class": className, "name": itemInfo.name, "location": itemInfo.location, "price": itemInfo.price})
+                ret.push({"class": className, "name": itemInfo.name, "location": itemInfo.location, "price": parseInt(itemInfo.price)})
                 break;
               }
             }
@@ -153,9 +156,18 @@ import northernInsects from '../../static/northernInsects.json'
         const startTimeVal = parseInt(this.startTime.split(":")[0]);
         const endTimeVal = parseInt(this.endTime.split(":")[0]);
         const monthVal = parseInt(this.monthValue);
+        const hemiVal = parseInt(this.hemiValue);
+        let fishTable, insectsTable;
+        if (hemiVal === 1) {
+          fishTable = northernFish;
+          insectsTable = northernInsects;
+        } else if (hemiVal === 2) {
+          fishTable = southernFish;
+          insectsTable = southernInsects;
+        }
         // console.log(startTimeVal + " " + endTimeVal);
-        const selectedFish = this.selectFunction(startTimeVal, endTimeVal, monthVal, northernFish, "鱼");
-        const selectedInsects = this.selectFunction(startTimeVal, endTimeVal, monthVal, northernInsects, "昆虫");
+        const selectedFish = this.selectFunction(startTimeVal, endTimeVal, monthVal, fishTable, "鱼");
+        const selectedInsects = this.selectFunction(startTimeVal, endTimeVal, monthVal, insectsTable, "昆虫");
         this.resultData.push.apply(this.resultData, selectedFish);
         this.resultData.push.apply(this.resultData, selectedInsects);
       },
